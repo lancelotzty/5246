@@ -7,16 +7,6 @@ import re
 import string
 
 from nltk.tokenize import word_tokenize
-from nltk.stem import WordNetLemmatizer
-from nltk.stem import PorterStemmer
-
-wnl = WordNetLemmatizer()
-
-def lemmatize(text):
-    # cleaned_tokens = [wnl.lemmatize(ps.stem(x)) for x in word_tokenize(text)]
-    cleaned_tokens = [wnl.lemmatize(str(x)) for x in word_tokenize(str(text))]
-    text = " ".join(cleaned_tokens)
-    return text
 
 # emoticons
 def load_dict_smileys():
@@ -97,7 +87,7 @@ def load_dict_contractions():
         "ain't":"is not",
         "amn't":"am not",
         "aren't":"are not",
-        "can't":"cannot",
+        "can't":"cgannot",
         "'cause":"because",
         "couldn't":"could not",
         "couldn't've":"could not have",
