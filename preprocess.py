@@ -6,6 +6,285 @@ import emoji
 import re
 import string
 
+from nltk.tokenize import word_tokenize
+
+# emoticons
+def load_dict_smileys():
+    
+    return {
+        ":-)":"smiley",
+        ":-]":"smiley",
+        ":-3":"smiley",
+        ":->":"smiley",
+        "8-)":"smiley",
+        ":-}":"smiley",
+        ":)":"smiley",
+        ":]":"smiley",
+        ":3":"smiley",
+        ":>":"smiley",
+        "8)":"smiley",
+        ":}":"smiley",
+        ":o)":"smiley",
+        ":c)":"smiley",
+        ":^)":"sad",
+        "=]":"smiley",
+        "=)":"smiley",
+        ":-))":"smiley",
+        ":-d":"smiley",
+        "8-d":"smiley",
+        "x-d":"smiley",
+        "X-d":"smiley",
+        ":d":"smiley",
+        "8d":"smiley",
+        "xd":"smiley",
+        "Xd":"smiley",
+        ":-D":"smiley",
+        "8-D":"smiley",
+        "x-D":"smiley",
+        "X-D":"smiley",
+        ":D":"smiley",
+        "8D":"smiley",
+        "xD":"smiley",
+        "XD":"smiley",
+        ":-(":"sad",
+        ":-c":"sad",
+        ":-<":"sad",
+        ":-[":"sad",
+        ":(":"sad",
+        ":c":"sad",
+        ":<":"sad",
+        ":[":"sad",
+        ":-||":"sad",
+        ">:[":"sad",
+        ":{":"sad",
+        ":@":"sad",
+        ">:(":"sad",
+        ":'-(":"sad",
+        ":'(":"sad",
+        ":-P":"playful",
+        "X-P":"playful",
+        "X-p":"playful",
+        "x-P":"playful",
+        "x-p":"playful",
+        ":-p":"playful",
+        ":-b":"playful",
+        ":P":"playful",
+        ":p":"playful",
+        "XP":"playful",
+        "Xp":"playful",
+        "xP":"playful",
+        "xp":"playful",
+        ":P":"playful",
+        ":p":"playful",
+        ":b":"playful",
+        "<3":"love"
+        }
+
+# self defined contractions
+def load_dict_contractions():
+    
+    return {
+        "ain't":"is not",
+        "amn't":"am not",
+        "aren't":"are not",
+        "can't":"cannot",
+        "'cause":"because",
+        "couldn't":"could not",
+        "couldn't've":"could not have",
+        "could've":"could have",
+        "daren't":"dare not",
+        "daresn't":"dare not",
+        "dasn't":"dare not",
+        "didn't":"did not",
+        "doesn't":"does not",
+        "don't":"do not",
+        "e'er":"ever",
+        "em":"them",
+        "everyone's":"everyone is",
+        "finna":"fixing to",
+        "gimme":"give me",
+        "gonna":"going to",
+        "gon't":"go not",
+        "gotta":"got to",
+        "hadn't":"had not",
+        "hasn't":"has not",
+        "haven't":"have not",
+        "he'd":"he would",
+        "he'll":"he will",
+        "he's":"he is",
+        "he've":"he have",
+        "how'd":"how would",
+        "how'll":"how will",
+        "how're":"how are",
+        "how's":"how is",
+        "i'd":"i would",
+        "i'll":"i will",
+        "i'm":"i am",
+        "i'm'a":"i am about to",
+        "i'm'o":"i am going to",
+        "isn't":"is not",
+        "it'd":"it would",
+        "it'll":"it will",
+        "it's":"it is",
+        "i've":"i have",
+        "kinda":"kind of",
+        "let's":"let us",
+        "mayn't":"may not",
+        "may've":"may have",
+        "mightn't":"might not",
+        "might've":"might have",
+        "mustn't":"must not",
+        "mustn't've":"must not have",
+        "must've":"must have",
+        "needn't":"need not",
+        "ne'er":"never",
+        "o'":"of",
+        "o'er":"over",
+        "ol'":"old",
+        "oughtn't":"ought not",
+        "shalln't":"shall not",
+        "shan't":"shall not",
+        "she'd":"she would",
+        "she'll":"she will",
+        "she's":"she is",
+        "shouldn't":"should not",
+        "shouldn't've":"should not have",
+        "should've":"should have",
+        "somebody's":"somebody is",
+        "someone's":"someone is",
+        "something's":"something is",
+        "that'd":"that would",
+        "that'll":"that will",
+        "that're":"that are",
+        "that's":"that is",
+        "there'd":"there would",
+        "there'll":"there will",
+        "there're":"there are",
+        "there's":"there is",
+        "these're":"these are",
+        "they'd":"they would",
+        "they'll":"they will",
+        "they're":"they are",
+        "they've":"they have",
+        "this's":"this is",
+        "those're":"those are",
+        "'tis":"it is",
+        "'twas":"it was",
+        "wanna":"want to",
+        "wasn't":"was not",
+        "we'd":"we would",
+        "we'd've":"we would have",
+        "we'll":"we will",
+        "we're":"we are",
+        "weren't":"were not",
+        "we've":"we have",
+        "what'd":"what did",
+        "what'll":"what will",
+        "what're":"what are",
+        "what's":"what is",
+        "what've":"what have",
+        "when's":"when is",
+        "where'd":"where did",
+        "where're":"where are",
+        "where's":"where is",
+        "where've":"where have",
+        "which's":"which is",
+        "who'd":"who would",
+        "who'd've":"who would have",
+        "who'll":"who will",
+        "who're":"who are",
+        "who's":"who is",
+        "who've":"who have",
+        "why'd":"why did",
+        "why're":"why are",
+        "why's":"why is",
+        "won't":"will not",
+        "wouldn't":"would not",
+        "would've":"would have",
+        "y'all":"you all",
+        "you'd":"you would",
+        "you'll":"you will",
+        "you're":"you are",
+        "you've":"you have",
+        "whatcha":"what are you",
+        "luv":"love",
+        "sux":"sucks"
+        }
+
+
+def get_username(text):
+    return ' '.join(re.findall("@([a-z0-9_]+)", text, flags=re.I)).lower()
+def get_url(text):
+    return ' '.join(re.findall('http[s]?[^\s]+', text, flags=re.I)).lower()
+def get_hashtag(text):
+    return ' '.join(re.findall('#+[a-zA-Z0-9(_)]{1,}', text, flags=re.I)).lower()
+def replace_username(text):
+    text = re.sub('@[^\s]+', '', text, flags=re.I)
+    text = re.sub("@([a-z0-9_]+)", '', text, flags=re.I)
+    return text
+def replace_url(text):
+    text = re.sub('http[s]?[^\s]+', '', text)
+    text = re.sub('https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+', '', text, flags=re.I)
+    return text
+def replace_new_line(text):
+    text = re.sub('\n', '', text)
+    return text
+def replace_ampersand(text):
+    text = re.sub('&amp', '', text)
+    return text
+def replace_zero_width_space(text):
+    text = re.sub('#x200B', '', text)
+    return text
+def get_len(text):
+    if text == '':
+        return 0
+    else:
+        return len(text.split(' '))
+def replace_hashtag(text):
+    return re.sub('#+[a-zA-Z0-9(_)]{1,}', '', text, flags=re.I)
+def replace_hash(text):
+    return re.sub('#', '', text)
+def replace_contractions(text):
+    text = text.replace("’","'")
+    words = text.split()
+    reformed = [CONTRACTIONS[word] if word in CONTRACTIONS else word for word in words]
+    text = " ".join(reformed)
+    return text
+def replace_smiley(text):
+    words = text.split()
+    reformed = ['' if word in SMILEY else word for word in words]
+    text = " ".join(reformed)
+    return text
+def get_smiley(text):
+    words = text.split()
+    reformed = [word for word in words if word in SMILEY]
+    reformed = [SMILEY[word] for word in reformed]
+    text = " ".join(reformed)
+    return text
+def get_num_char(text):
+    return len(text)
+def replace_consecutive_spaces(text):
+    text = re.sub(' +', ' ', text)
+    return text
+def replace_trailing_space(text):
+    return " ".join(text.split())
+def get_lol(text):
+    return " ".join(re.findall(r'\b(?:l+o+)+l+\b', text, flags=re.I))
+def get_haha(text):
+    return " ".join(re.findall(r"\b(?:a*(?:ha)+h?)\b", text, flags=re.I))
+def replace_lol(text):
+    return re.sub(r'\b(?:l+o+)+l+\b', "lol", text, flags=re.I)
+def replace_haha(text):
+    return re.sub(r"\b(?:a*(?:ha)+h?)\b", "haha", text, flags=re.I)
+def replace_duplicated_word_groups(text):
+    return re.sub(r"\b(\w+)\s+\1\b", "", text, flags=re.I)
+def replace_punctuations(text):
+    return re.sub(r'[^\w\s]', ' ', text)
+def lower(text):
+    return text.lower()
+def replace_only_numbers_in_words(text):
+    return re.sub(r'\b[0-9]+\b\s*', '', text)
+
 swear_words = ['2g1c','2 girls 1 cup','acrotomophilia','alabama hot pocket','alaskan pipeline','anal','anilingus','anus','apeshit','arsehole','ass','asshole','assmunch','auto erotic','autoerotic','babeland','baby batter','baby juice','ball gag','ball gravy','ball kicking','ball licking','ball sack','ball sucking','bangbros','bareback','barely legal','barenaked','bastard','bastardo','bastinado','bbw','bdsm','beaner','beaners','beaver cleaver','beaver lips','bestiality','big black','big breasts','big knockers','big tits','bimbos','birdlock','bitch','bitches','black cock','blonde action','blonde on blonde action','blowjob','blow job','blow your load','blue waffle','blumpkin','bollocks','bondage','boner','boob','boobs','booty call','brown showers','brunette action','bukkake','bulldyke','bullet vibe','bullshit','bung hole','bunghole','busty','butt','buttcheeks','butthole','camel toe','camgirl','camslut','camwhore','carpet muncher','carpetmuncher','chocolate rosebuds','circlejerk','cleveland steamer','clit','clitoris','clover clamps','clusterfuck','cock','cocks','coprolagnia','coprophilia','cornhole','coon','coons','creampie','cum','cumming','cunnilingus','cunt','darkie','date rape','daterape','deep throat','deepthroat','dendrophilia','dick','dildo','dingleberry','dingleberries','dirty pillows','dirty sanchez','doggie style','doggiestyle','doggy style','doggystyle','dog style','dolcett','domination','dominatrix','dommes','donkey punch','double dong','double penetration','dp action','dry hump','dvda','eat my ass','ecchi','ejaculation','erotic','erotism','escort','eunuch','faggot','fecal','felch','fellatio','feltch','female squirting','femdom','figging','fingerbang','fingering','fisting','foot fetish','footjob','frotting','fuck','fuck buttons','fuckin','fucking','fucktards','fudge packer','fudgepacker','futanari','gang bang','gay sex','genitals','giant cock','girl on','girl on top','girls gone wild','goatcx','goatse','god damn','gokkun','golden shower','goodpoop','goo girl','goregasm','grope','group sex','g-spot','guro','hand job','handjob','hard core','hardcore','hentai','homoerotic','honkey','hooker','hot carl','hot chick','how to kill','how to murder','huge fat','humping','incest','intercourse','jack off','jail bait','jailbait','jelly donut','jerk off','jigaboo','jiggaboo','jiggerboo','jizz','juggs','kike','kinbaku','kinkster','kinky','knobbing','leather restraint','leather straight jacket','lemon party','lolita','lovemaking','make me come','male squirting','masturbate','menage a trois','milf','missionary position','motherfucker','mound of venus','mr hands','muff diver','muffdiving','nambla','nawashi','negro','neonazi','nigga','nigger','nig nog','nimphomania','nipple','nipples','nsfw images','nude','nudity','nympho','nymphomania','octopussy','omorashi','one cup two girls','one guy one jar','orgasm','orgy','paedophile','paki','panties','panty','pedobear','pedophile','pegging','penis','phone sex','piece of shit','pissing','piss pig','pisspig','playboy','pleasure chest','pole smoker','ponyplay','poof','poon','poontang','punany','poop chute','poopchute','porn','porno','pornography','prince albert piercing','pthc','pubes','pussy','queaf','queef','quim','raghead','raging boner','rape','raping','rapist','rectum','reverse cowgirl','rimjob','rimming','rosy palm','rosy palm and her 5 sisters','rusty trombone','sadism','santorum','scat','schlong','scissoring','semen','sex','sexo','sexy','shaved beaver','shaved pussy','shemale','shibari','shit','shitblimp','shitty','shota','shrimping','skeet','slanteye','slut','s&m','smut','snatch','snowballing','sodomize','sodomy','spic','splooge','splooge moose','spooge','spread legs','spunk','strap on','strapon','strappado','strip club','style doggy','suck','sucks','suicide girls','sultry women','swastika','swinger','tainted love','taste my','tea bagging','threesome','throating','tied up','tight white','tit','tits','titties','titty','tongue in a','topless','tosser','towelhead','tranny','tribadism','tub girl','tubgirl','tushy','twat','twink','twinkie','two girls one cup','undressing','upskirt','urethra play','urophilia','vagina','venus mound','vibrator','violet wand','vorarephilia','voyeur','vulva','wank','wetback','wet dream','white power','wrapping men','wrinkled starfish','xx','xxx','yaoi','yellow showers','yiffy','zoophilia','🖕']
 contraction_mapping = {"ain't": 'is not',"aren't": 'are not',"can't": 'cannot',"'cause": 'because',"could've": 'could have',"couldn't": 'could not',"didn't": 'did not',"doesn't": 'does not',"don't": 'do not',"hadn't": 'had not',"hasn't": 'has not',"haven't": 'have not',"he'd": 'he would',"he'll": 'he will',"he's": 'he is',"how'd": 'how did',"how'd'y": 'how do you',"how'll": 'how will',"how's": 'how is',"I'd": 'I would',"I'd've": 'I would have',"I'll": 'I will',"I'll've": 'I will have',"I'm": 'I am',"I've": 'I have',"i'd": 'i would',"i'd've": 'i would have',"i'll": 'i will',"i'll've": 'i will have',"i'm": 'i am',"i've": 'i have',"isn't": 'is not',"it'd": 'it would',"it'd've": 'it would have',"it'll": 'it will',"it'll've": 'it will have',"it's": 'it is',"let's": 'let us',"ma'am": 'madam',"mayn't": 'may not',"might've": 'might have',"mightn't": 'might not',"mightn't've": 'might not have',"must've": 'must have',"mustn't": 'must not',"mustn't've": 'must not have',"needn't": 'need not',"needn't've": 'need not have',"o'clock": 'of the clock',"oughtn't": 'ought not',"oughtn't've": 'ought not have',"shan't": 'shall not',"sha'n't": 'shall not',"shan't've": 'shall not have',"she'd": 'she would',"she'd've": 'she would have',"she'll": 'she will',"she'll've": 'she will have',"she's": 'she is',"should've": 'should have',"shouldn't": 'should not',"shouldn't've": 'should not have',"so've": 'so have',"so's": 'so as',"this's": 'this is',"that'd": 'that would',"that'd've": 'that would have',"that's": 'that is',"there'd": 'there would',"there'd've": 'there would have',"there's": 'there is',"here's": 'here is',"they'd": 'they would',"they'd've": 'they would have',"they'll": 'they will',"they'll've": 'they will have',"they're": 'they are',"they've": 'they have',"to've": 'to have',"wasn't": 'was not',"we'd": 'we would',"we'd've": 'we would have',"we'll": 'we will',"we'll've": 'we will have',"we're": 'we are',"we've": 'we have',"weren't": 'were not',"what'll": 'what will',"what'll've": 'what will have',"what're": 'what are',"what's": 'what is',"what've": 'what have',"when's": 'when is',"when've": 'when have',"where'd": 'where did',"where's": 'where is',"where've": 'where have',"who'll": 'who will',"who'll've": 'who will have',"who's": 'who is',"who've": 'who have',"why's": 'why is',"why've": 'why have',"will've": 'will have',"won't": 'will not',"won't've": 'will not have',"would've": 'would have',"wouldn't": 'would not',"wouldn't've": 'would not have',"y'all": 'you all',"y'all'd": 'you all would',"y'all'd've": 'you all would have',"y'all're": 'you all are',"y'all've": 'you all have',"you'd": 'you would',"you'd've": 'you would have',"you'll": 'you will',"you'll've": 'you will have',"you're": 'you are',"you've": 'you have','u.s': 'america','e.g': 'for example','colour': 'color','centre': 'center','favourite': 'favorite','travelling': 'traveling'}
 punct = ['#','∅','`','¿','▲','♪','±','、','╗','à','»','・','~','，','‡','：','}','●','⊕','-','ᴵ','[','|','Â','★','—','▬','↓','†','%','▪','▼','¸','▾','←','‘','₹','▄','>','¬','❤','+',')','®','＄','{',']','<','▀','≤','â','”','♫','¢','∞','″','♥','º','¡','¥','"','é','⋅','_',';','¨','€','↑','·','^','ï','¶','─','！','╦','＆','→','“','–','₤','!','■','║','═','β','§','è','²','*','™','☆','−','―','╔','′','«','’','¾','Ã','£','¤','╚','∙','¹','=','）','▓','&','‹','½','›','│','°','π','╩','•','¦','?','÷','ə',',','√',
