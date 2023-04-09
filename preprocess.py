@@ -87,7 +87,7 @@ def load_dict_contractions():
         "ain't":"is not",
         "amn't":"am not",
         "aren't":"are not",
-        "can't":"cgannot",
+        "can't":"cannot",
         "'cause":"because",
         "couldn't":"could not",
         "couldn't've":"could not have",
