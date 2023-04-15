@@ -4,9 +4,12 @@ emoji==2.2.0
 flashtext==2.7
 matplotlib==3.5.3
 nltk==3.4.5
+numpy==1.21.6
 pandas==1.0.1
 pydantic==1.10.2
+scikit-learn==0.22.1
 seaborn==0.10.0
+shap==0.41.0
 spacy==3.4.4
 tqdm==4.65.0
 typing-extensions==4.4.0
