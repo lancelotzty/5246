@@ -1,9 +1,7 @@
-from turtle import forward
 import torch
 from torch import nn
 import torch.nn.functional as F
 from torch.nn import TransformerEncoder, TransformerEncoderLayer
-from torch.utils.data import dataset
 import math
 
 def custom_loss(data, targets):
@@ -17,12 +15,12 @@ class TransEncoder(nn.Module):
     def __init__(self, embedding_matrix, nhead=5, d_hid=1024, nlayers=10, dropout=0.5):
         super().__init__()
         self.ntoken, self.d_model = embedding_matrix.shape
+        self.encoder = load_embedding_layer(embedding_matrix)
         self.model_type = 'Transformer'
         self.pos_encoder = PositionalEncoding(self.d_model, dropout)
         self.embedding_dropout = SpatialDropout(0.3)
         encoder_layers = TransformerEncoderLayer(self.d_model, nhead, d_hid, dropout)
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
-        self.encoder = load_embedding_layer(embedding_matrix)
         self.init_weights()
 
     def init_weights(self) -> None:
@@ -57,7 +55,7 @@ class LSTMEncoder(nn.Module):
         self.embedding_dropout = SpatialDropout(0.3)
         self.lstm1 = nn.LSTM(self.embedding_size, num_unit, bidirectional=True, batch_first=True)
         self.lstm2 = nn.LSTM(num_unit * 2, int(num_unit / 2), bidirectional=True, batch_first=True)
-    
+
     def forward(self, x):
         h_embedding = self.embedding(x)
         h_embedding = self.embedding_dropout(h_embedding)
@@ -87,14 +85,14 @@ class Attention(nn.Module):
 
         feature_dim = self.feature_dim
         step_dim = self.step_dim
-        
+
         eij = torch.mm(
             x.contiguous().view(-1, feature_dim), 
             self.weight
         ).view(-1, step_dim)
 
         if self.bias:
-                eij = eij + self.b
+            eij = eij + self.b
 
         eij = torch.tanh(eij)
         a = torch.exp(eij)
@@ -117,6 +115,7 @@ class SpatialDropout(nn.Module):
         x = self.dropout(x)
         x = x.permute(0, 2, 1)   # back to [batch, timestep, feature]
         return x
+
 
 def load_embedding_layer(embedding_matrix):
     embedding = nn.Embedding(*embedding_matrix.shape)
@@ -150,17 +149,17 @@ class NeuralNet(nn.Module):
         max_pool, _ = torch.max(encoder_output, 1)
 
         # concatenation
-        h = torch.cat((max_pool, avg_pool), 1)
+        hidden = torch.cat((max_pool, avg_pool), 1)
         # h = torch.cat((max_pool, avg_pool, att), 1)
-        
-        h_linear1 = F.relu(self.linear1(h))
-        h_linear2 = F.relu(self.linear2(h))
+
+        h_linear1 = F.relu(self.linear1(hidden))
+        h_linear2 = F.relu(self.linear2(hidden))
 
         out1 = F.sigmoid(self.linear_out(h_linear1))
         out2 = F.sigmoid(self.linear_aux_out(h_linear2))
 
         return out1, out2
-    
+
 
 # Transformer models
 
@@ -185,6 +184,22 @@ class PositionalEncoding(nn.Module):
         x = x + self.pe[:x.size(0)]
         return self.dropout(x)
 
-# def generate_square_subsequent_mask(sz: int) -> Tensor:
-#     """Generates an upper-triangular matrix of -inf, with zeros on diag."""
-#     return torch.triu(torch.ones(sz, sz) * float('-inf'), diagonal=1)
+
+class NeuralNetBase(nn.Module):
+
+    def __init__(self, num_unit, num_heads):
+        super(NeuralNetBase, self).__init__()
+        # self.attention = Attention(num_unit, MAX_LEN)
+        self.linear1 = nn.Linear(1024, 512)
+        self.linear2 = nn.Linear(512, num_unit)
+        self.linear_out = nn.Linear(num_unit, 1)
+        
+    def forward(self, x_context_embedding):
+
+        # x_context_embedding = torch.unsqueeze(x_context_embedding, 1)
+        h_linear1 = F.dropout(F.relu(self.linear1(x_context_embedding)), 0.4)
+        h_linear2 = F.dropout(F.relu(self.linear2(h_linear1)), 0.4)
+
+        out1 = torch.sigmoid(self.linear_out(h_linear2))
+
+        return out1
